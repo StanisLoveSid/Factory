@@ -1,20 +1,14 @@
 class Factory
 
   def self.new(*attributes, &block)
-  	@@args = attributes
     Class.new do
       self.send(:attr_accessor, *attributes)
       self.send(:define_method, :initialize) do |*values|
         values.each_with_index { |val, i| self.send("#{attributes[i]}=", val) }
-      end 
+      end
 
-      def [](index)
-          case index
-           when Integer 
-            send(@@args[index])
-           when Symbol, String 
-            send("#{index}")
-          end
+      define_method :[] do |attribute|
+        attribute.is_a?(Numeric) ? send("#{attributes[attribute]}") : send(attribute)
       end
 
       class_eval(&block) if block_given?
